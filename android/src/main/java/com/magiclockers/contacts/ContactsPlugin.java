@@ -9,6 +9,9 @@ import android.util.Log;
 import androidx.appcompat.app.AppCompatActivity;
 
 
+import com.airbnk.sdk.callback.IConnectDeviceCallback;
+import com.airbnk.sdk.callback.IDeviceStatusCallback;
+import com.airbnk.sdk.callback.IUnlockCallback;
 import com.getcapacitor.JSObject;
 import com.getcapacitor.NativePlugin;
 import com.getcapacitor.Plugin;
@@ -30,6 +33,7 @@ class Api extends AppCompatActivity {
 )
 public class ContactsPlugin extends Plugin {
   protected static final int REQUEST_CONTACTS = 12345; // Unique request code
+  private com.airbnk.sdk.MainApi mainApi;
 
   @PluginMethod()
   public void getContacts(PluginCall call) {
@@ -79,6 +83,37 @@ public class ContactsPlugin extends Plugin {
         String name = cur.getString(cur.getColumnIndex(
           ContactsContract.Contacts.DISPLAY_NAME));
 
+        //test
+        Api api = new Api();
+        mainApi = new MainApi(api,"aaa","bbb");
+        mainApi.connect( new IConnectDeviceCallback() {
+          @Override
+          public void onSuccess() {
+            mainApi.unlock("aaa", new IUnlockCallback() {
+              @Override
+              public void onSuccess() {
+                if(mainApi != null){
+                  mainApi.disconnect();
+                }
+              }
+
+              @Override
+              public void onFailed(String errorMsg) {
+              }
+            });
+          }
+
+          @Override
+          public void onFailed(String errorMsg) {
+
+          }
+        }, new IDeviceStatusCallback(){
+          @Override
+          public void states(int i) {
+
+          }
+        });
+        //test
         map.put("firstName", name);
         map.put("lastName", "");
 
