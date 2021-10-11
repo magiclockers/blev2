@@ -32,3 +32,6 @@ export { ContactsPlugin };
 
 import { registerWebPlugin } from '@capacitor/core';
 registerWebPlugin(ContactsPlugin);
+
+
+export * from './definitions';

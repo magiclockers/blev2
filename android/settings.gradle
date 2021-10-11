@@ -1,3 +1,5 @@
-include ':airbnk'
 include ':capacitor-android'
+include ':airbnk'
 project(':capacitor-android').projectDir = new File('../node_modules/@capacitor/android/capacitor')
+project(':airbnk').projectDir = new File('./airbnk')
+
