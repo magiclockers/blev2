@@ -6,6 +6,7 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.provider.ContactsContract;
 import android.util.Log;
+
 import androidx.appcompat.app.AppCompatActivity;
 
 
@@ -32,16 +33,59 @@ class Api extends AppCompatActivity {
   requestCodes = {ContactsPlugin.REQUEST_CONTACTS}
 )
 public class ContactsPlugin extends Plugin {
-  protected static final int REQUEST_CONTACTS = 12345; // Unique request code
+  protected static final int REQUEST_CONTACTS = 22345; // Unique request code
   private com.airbnk.sdk.MainApi mainApi;
 
+  @PluginMethod()
+  public void echo(PluginCall call) {
+    String value = call.getString("value");
+
+    JSObject ret = new JSObject();
+    ret.put("value", "ayaya");
+    call.resolve(ret);
+  }
   @PluginMethod()
   public void getContacts(PluginCall call) {
     String value = call.getString("filter");
     // Filter based on the value if want
+    //test
+    Api api = new Api();
+    mainApi = new MainApi(api, "aaa", "bbb");
+    mainApi.connect(new IConnectDeviceCallback() {
+      @Override
+      public void onSuccess() {
+        mainApi.unlock("aaa", new IUnlockCallback() {
+          @Override
+          public void onSuccess() {
+            if (mainApi != null) {
+              mainApi.disconnect();
+            }
+          }
 
-    saveCall(call);
-    pluginRequestPermission(Manifest.permission.READ_CONTACTS, REQUEST_CONTACTS);
+          @Override
+          public void onFailed(String errorMsg) {
+          }
+        });
+      }
+
+      @Override
+      public void onFailed(String errorMsg) {
+
+      }
+    }, new IDeviceStatusCallback() {
+      @Override
+      public void states(int i) {
+
+      }
+    });
+    //test
+    JSObject ret = new JSObject();
+    ret.put("result.firstName", "ayaya");
+    ret.put("result.lastName", "ffff");
+    call.success(ret);
+
+   // saveCall(call);
+   // pluginRequestPermission(Manifest.permission.READ_CONTACTS, REQUEST_CONTACTS);
   }
 
   @Override
@@ -82,38 +126,6 @@ public class ContactsPlugin extends Plugin {
           cur.getColumnIndex(ContactsContract.Contacts._ID));
         String name = cur.getString(cur.getColumnIndex(
           ContactsContract.Contacts.DISPLAY_NAME));
-
-        //test
-        Api api = new Api();
-        mainApi = new MainApi(api,"aaa","bbb");
-        mainApi.connect( new IConnectDeviceCallback() {
-          @Override
-          public void onSuccess() {
-            mainApi.unlock("aaa", new IUnlockCallback() {
-              @Override
-              public void onSuccess() {
-                if(mainApi != null){
-                  mainApi.disconnect();
-                }
-              }
-
-              @Override
-              public void onFailed(String errorMsg) {
-              }
-            });
-          }
-
-          @Override
-          public void onFailed(String errorMsg) {
-
-          }
-        }, new IDeviceStatusCallback(){
-          @Override
-          public void states(int i) {
-
-          }
-        });
-        //test
         map.put("firstName", name);
         map.put("lastName", "");
 
