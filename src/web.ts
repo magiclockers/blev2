@@ -13,15 +13,9 @@ export class ContactsPluginWeb extends WebPlugin implements ContactsPluginPlugin
     console.log('ECHO', options);
     return options;
   }
-  async getContacts(filter: string): Promise<{ results: any[] }> {
-    console.log('filter: ', filter);
-    return {
-      results: [{
-        firstName: 'Dummy',
-        lastName: 'Entry',
-        telephone: '123456'
-      }]
-    };
+  async getContacts(options: { value: string }): Promise<{ value: string }> {
+    console.log('ECHO', options);
+    return options;
   }
 }
 

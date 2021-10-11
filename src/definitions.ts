@@ -7,5 +7,5 @@ declare module '@capacitor/core' {
 
 export interface ContactsPluginPlugin {
   echo(options: { value: string }): Promise<{ value: string }>;
-  getContacts(filter: string): Promise<{results: any[]}>;
+  getContacts(options: { value: string }): Promise<{ value: string }>;
 }
