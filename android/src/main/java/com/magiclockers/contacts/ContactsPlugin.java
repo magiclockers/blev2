@@ -1,13 +1,7 @@
 package com.magiclockers.contacts;
-
 import android.app.Activity;
-import android.content.ContentResolver;
-import android.content.pm.PackageManager;
-import android.database.Cursor;
-import android.provider.ContactsContract;
-import android.util.Log;
+import android.database.sqlite.SQLiteDatabase;
 
-//import androidx.appcompat.app.AppCompatActivity;
 import com.airbnk.sdk.callback.IGetDynamicPasswordCallback;
 import com.inuker.bluetooth.library.connect.listener.BleConnectStatusListener;
 
@@ -21,15 +15,12 @@ import com.getcapacitor.PluginCall;
 import com.getcapacitor.PluginMethod;
 import com.airbnk.sdk.MainApi;
 
-import org.json.JSONArray;
+import androidx.appcompat.app.AppCompatActivity;
 
-import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
 class Api extends Activity {
-  private final BleConnectStatusListener mConnectStatusListener = new BleConnectStatusListener() {
+  private SQLiteDatabase db;
+  public final BleConnectStatusListener mConnectStatusListener = new BleConnectStatusListener() {
     @Override
     public void onConnectStatusChanged(String mac, int status) {
     }
@@ -41,7 +32,7 @@ class Api extends Activity {
 )
 public class ContactsPlugin extends Plugin {
   protected static final int REQUEST_CONTACTS = 12345; // Unique request code
-  private com.airbnk.sdk.MainApi mainApi;
+  private MainApi mainApi;
   public String value = "init";
   String sn = "TiHeSBp9BlLKFW6jgfondDy9ovkoUGwbsFLES3HYkRPQ48KL5aZe9dMtLCS/I44M/wVZWV0KUqUdJT1oq9FR//8FWVldClKlHSU9aKvRUf//BVlZXQpSpR0lPWir0VH//wVZWV0KUqUdJT1oq9FR//igVOBiVnz7W2LScEbB3TdUWjQH+gTO5sfaexY2pOf+39SoNpk07DhbbEfkoqemCgrwp++6XTAcupECUJbt9NgQ4qZlVxTNm7OgQ8TBSIt71KxQfNH0iMUHJ0KRMwBVXlysgpW7Tzt+sl3GoX3zF6n/BVlZXQpSpR0lPWir0VH//wVZWV0KUqUdJT1oq9FR//8FWVldClKlHSU9aKvRUf//BVlZXQpSpR0lPWir0VH//wVZWV0KUqUdJT1oq9FR//8FWVldClKlHSU9aKvRUf//BVlZXQpSpR0lPWir0VH//wVZWV0KUqUdJT1oq9FR//8FWVldClKlHSU9aKvRUf//BVlZXQpSpR0lPWir0VH//wVZWV0KUqUdJT1oq9FR//8FWVldClKlHSU9aKvRUf//BVlZXQpSpR0lPWir0VH//wVZWV0KUqUdJT1oq9FR//8FWVldClKlHSU9aKvRUf//BVlZXQpSpR0lPWir0VH//wVZWV0KUqUdJT1oq9FR/+i/cVq1OcLiYGSr/pfPSVQ=a8677206db3ee35f1c4a1700eaa2c8d7";
   String key = "airbnkHaha123456";
@@ -49,52 +40,55 @@ public class ContactsPlugin extends Plugin {
   @PluginMethod()
   public void echo(PluginCall call) {
     value = call.getString("value");
-//test
-    Api api = new Api();
-    mainApi = new MainApi(api, sn, key);
-  //  try {
-
-    mainApi.connect(new IConnectDeviceCallback() {
-      @Override
-      public void onSuccess() {
-        value = "connect succeed";
-        mainApi.unlock(sn, new IUnlockCallback() {
+//connect
+    try {
+      Api api = new Api();
+      mainApi = new MainApi(api, sn, key);
+      if(mainApi != null) {
+        System.out.print(mainApi);
+        mainApi.connect(new IConnectDeviceCallback() {
           @Override
           public void onSuccess() {
-            value = "unlock succeed";
-            if (mainApi != null) {
-              mainApi.disconnect();
-            }
+            value = "connect succeed";
+            mainApi.unlock(sn, new IUnlockCallback() {
+              @Override
+              public void onSuccess() {
+                value = "unlock succeed";
+                if (mainApi != null) {
+                  mainApi.disconnect();
+                }
+              }
+
+              @Override
+              public void onFailed(String errorMsg) {
+                value = errorMsg;
+              }
+            });
           }
 
           @Override
           public void onFailed(String errorMsg) {
             value = errorMsg;
           }
+        }, new IDeviceStatusCallback() {
+          @Override
+          public void states(int i) {
+            value = "connect failed";
+          }
         });
       }
 
-      @Override
-      public void onFailed(String errorMsg) {
-        value = errorMsg;
-      }
-    }, new IDeviceStatusCallback() {
-      @Override
-      public void states(int i) {
-        value = "connect failed";
-      }
-    });
-     ////m.invoke(testObject);
-//    } catch (Exception e) {
-//      e.getCause();
-//        e.printStackTrace();
-//    }
+    } catch (Exception e) {
+      e.getCause();
+      e.printStackTrace();
+    }
 
-    //test
+    //connect end
     JSObject ret = new JSObject();
     ret.put("value", value);
     call.success(ret);
   }
+
   @PluginMethod()
   public void getContacts(PluginCall call) {
     value = call.getString("value");
@@ -103,7 +97,7 @@ public class ContactsPlugin extends Plugin {
     mainApi.getDynamicPassword(sn, new IGetDynamicPasswordCallback() {
       @Override
       public void onSuccess(String password) {
-       value = password;
+        value = password;
       }
 
       @Override

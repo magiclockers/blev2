@@ -10,7 +10,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.6.1'
+        classpath 'com.android.tools.build:gradle:3.6.4'
     }
 }
 allprojects{
@@ -56,6 +56,7 @@ dependencies {
   implementation fileTree(dir: 'airbnk', include: ['*.aar'])
     implementation project(':capacitor-android')
   implementation 'androidx.appcompat:appcompat:1.3.1'
+  //implementation 'com.android.support:appcompat-v7:28.0.0'
   implementation 'com.inuker.bluetooth:library:1.4.0'
    //implementation project(':airbnk')
     testImplementation "junit:junit:$junitVersion"
@@ -65,4 +66,14 @@ dependencies {
   //implementation(name:'sdk', ext:'aar')
   artifacts.add("default", file('sdk.aar'))
 
+}
+configurations.all {
+  resolutionStrategy.eachDependency { DependencyResolveDetails details ->
+    def requested = details.requested
+    if (requested.group == 'com.android.support') {
+      if (!requested.name.startsWith("multidex")) {
+        details.useVersion '27.1.1'
+      }
+    }
+  }
 }
