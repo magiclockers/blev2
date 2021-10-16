@@ -1,6 +1,16 @@
 package com.magiclockers.contacts;
+
 import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
+import android.os.Build;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.view.View;
+import android.view.WindowManager;
+import android.widget.Button;
 
 import com.airbnk.sdk.callback.IGetDynamicPasswordCallback;
 import com.inuker.bluetooth.library.connect.listener.BleConnectStatusListener;
@@ -17,20 +27,17 @@ import com.airbnk.sdk.MainApi;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import static androidx.core.content.ContextCompat.startActivity;
 
-class Api extends Activity {
-  private SQLiteDatabase db;
-  public final BleConnectStatusListener mConnectStatusListener = new BleConnectStatusListener() {
-    @Override
-    public void onConnectStatusChanged(String mac, int status) {
-    }
-  };
+class Aapi extends Activity {
 }
 
 @NativePlugin(
   requestCodes = {ContactsPlugin.REQUEST_CONTACTS}
 )
 public class ContactsPlugin extends Plugin {
+
+
   protected static final int REQUEST_CONTACTS = 12345; // Unique request code
   private MainApi mainApi;
   public String value = "init";
@@ -40,50 +47,8 @@ public class ContactsPlugin extends Plugin {
   @PluginMethod()
   public void echo(PluginCall call) {
     value = call.getString("value");
-//connect
-    try {
-      Api api = new Api();
-      mainApi = new MainApi(api, sn, key);
-      if(mainApi != null) {
-        System.out.print(mainApi);
-        mainApi.connect(new IConnectDeviceCallback() {
-          @Override
-          public void onSuccess() {
-            value = "connect succeed";
-            mainApi.unlock(sn, new IUnlockCallback() {
-              @Override
-              public void onSuccess() {
-                value = "unlock succeed";
-                if (mainApi != null) {
-                  mainApi.disconnect();
-                }
-              }
-
-              @Override
-              public void onFailed(String errorMsg) {
-                value = errorMsg;
-              }
-            });
-          }
-
-          @Override
-          public void onFailed(String errorMsg) {
-            value = errorMsg;
-          }
-        }, new IDeviceStatusCallback() {
-          @Override
-          public void states(int i) {
-            value = "connect failed";
-          }
-        });
-      }
-
-    } catch (Exception e) {
-      e.getCause();
-      e.printStackTrace();
-    }
-
-    //connect end
+    Intent intent = new Intent(this.getContext(), new Api().getClass());
+    getActivity().startActivity(intent);
     JSObject ret = new JSObject();
     ret.put("value", value);
     call.success(ret);
@@ -92,7 +57,7 @@ public class ContactsPlugin extends Plugin {
   @PluginMethod()
   public void getContacts(PluginCall call) {
     value = call.getString("value");
-    Api api = new Api();
+    Aapi api = new Aapi();
     mainApi = new MainApi(api, sn, key);
     mainApi.getDynamicPassword(sn, new IGetDynamicPasswordCallback() {
       @Override
